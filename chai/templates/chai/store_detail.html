@@ -1,0 +1,86 @@
+
+{% extends "layout.html" %}
+
+{% block title %}
+{{ store.name }} - Store Details
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <h1 class="text-4xl font-bold mb-2">{{ store.name }}</h1>
+        <p class="text-gray-600 mb-4">{{ store.store_location }}</p>
+        
+        <div class="flex items-center mb-6">
+            <div class="flex text-yellow-400 mr-4">
+                {% for i in "12345" %}
+                    {% if i <= avg_rating %}
+                        ★
+                    {% else %}
+                        ☆
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <span class="text-2xl font-bold">{{ avg_rating|floatformat:1 }}/5</span>
+            <span class="text-gray-600 ml-2">({{ rating_count }} ratings)</span>
+        </div>
+        
+        <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4">Available Chai Varieties</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for chai in store.chai_varieties.all %}
+                    <span class="bg-orange-200 text-orange-800 px-4 py-2 rounded-full">
+                        {{ chai.name }}
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    {% if user.is_authenticated %}
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Rate This Store</h2>
+            {% if rating_form %}
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    {{ rating_form.as_p }}
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white px-6 py-2 rounded">
+                        Submit Rating
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8">
+            <p class="font-bold">Want to rate this store?</p>
+            <p>Please <a href="{% url 'login' %}" class="underline">log in</a> to leave a rating.</p>
+        </div>
+    {% endif %}
+    
+    {% if ratings %}
+        <div class="space-y-4">
+            <h2 class="text-2xl font-bold">Store Ratings</h2>
+            {% for rating in ratings %}
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="font-bold">{{ rating.user.username }}</div>
+                        <div class="flex text-yellow-400">
+                            {% for i in "12345" %}
+                                {% if i <= rating.rating %}
+                                    ★
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if rating.comment %}
+                        <p class="text-gray-700">{{ rating.comment }}</p>
+                    {% endif %}
+                    <p class="text-sm text-gray-500 mt-2">{{ rating.date_added|timesince }} ago</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

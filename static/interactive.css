@@ -1,0 +1,316 @@
+/* Interactive UI Styles */
+
+:root {
+    --primary-color: #f97316;
+    --secondary-color: #dc2626;
+    --success-color: #22c55e;
+    --warning-color: #eab308;
+    --error-color: #ef4444;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+}
+
+/* Smooth Transitions */
+* {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Buttons */
+button, [role="button"], input[type="submit"], input[type="button"] {
+    cursor: pointer;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover, [role="button"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+button:active, [role="button"]:active {
+    transform: translateY(0);
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+    transition: all 0.3s ease;
+    border: 2px solid var(--gray-200);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+/* Cards */
+.chai-card {
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.chai-card:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+}
+
+.chai-card img {
+    transition: transform 0.3s ease;
+}
+
+.chai-card:hover img {
+    transform: scale(1.05);
+}
+
+/* Rating Stars */
+.star {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+    font-size: 2rem;
+}
+
+.star:hover {
+    transform: scale(1.2) rotate(-15deg);
+}
+
+/* Animations */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.animate-in {
+    animation: slideInUp 0.3s ease forwards;
+}
+
+.animate-fade {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+/* Loading State */
+.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.spinner {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 3px solid var(--gray-300);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--success-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+    z-index: 50;
+    animation: slideInUp 0.3s ease;
+}
+
+.toast.error {
+    background: var(--error-color);
+}
+
+.toast.warning {
+    background: var(--warning-color);
+    color: var(--gray-800);
+}
+
+/* Filter Section */
+.filter-section {
+    background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+    border-radius: 0.75rem;
+    border: 1px solid var(--gray-200);
+}
+
+.filter-section input,
+.filter-section select {
+    background: white;
+}
+
+/* Review Item */
+.review-item {
+    border-left: 4px solid var(--primary-color);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    animation: slideInUp 0.3s ease;
+}
+
+.review-item:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Comments Section */
+.comments-section {
+    background: var(--gray-50);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.comments-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.comments-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+    background: var(--gray-200);
+    border-radius: 3px;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+/* Favorites Button */
+.favorite-btn {
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--gray-600);
+}
+
+.favorite-btn:hover {
+    background: var(--secondary-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.favorite-btn.active {
+    background: var(--secondary-color);
+    color: white;
+}
+
+/* Responsive Grid */
+@media (max-width: 768px) {
+    .chai-card {
+        margin-bottom: 1rem;
+    }
+    
+    button, [role="button"] {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .toast {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+    }
+}
+
+/* Hover Effects for Links */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+/* Badge Styles */
+.badge {
+    display: inline-block;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.badge.success {
+    background: var(--success-color);
+}
+
+.badge.warning {
+    background: var(--warning-color);
+    color: var(--gray-800);
+}
+
+.badge.error {
+    background: var(--error-color);
+}

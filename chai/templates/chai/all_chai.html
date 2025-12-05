@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+
+{% block title %}
+All Chai Varieties
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8 text-center">Chai Collection</h1>
+    
+    <!-- Search & Filter Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Search Box -->
+            <div>
+                <input type="text" id="searchBox" placeholder="Search chai..." 
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+            </div>
+            
+            <!-- Chai Type Filter -->
+            <div>
+                <select id="chaiTypeFilter" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">All Types</option>
+                    <option value="ML">Masala</option>
+                    <option value="GR">Ginger</option>
+                    <option value="KL">Kiwi</option>
+                    <option value="PL">Plain</option>
+                    <option value="EL">Elaichi</option>
+                </select>
+            </div>
+            
+            <!-- Price Range Filter -->
+            <div>
+                <select id="priceFilter" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">All Prices</option>
+                    <option value="0-50">₹0 - ₹50</option>
+                    <option value="50-100">₹50 - ₹100</option>
+                    <option value="100-200">₹100 - ₹200</option>
+                    <option value="200+">₹200+</option>
+                </select>
+            </div>
+            
+            <!-- Rating Filter -->
+            <div>
+                <select id="ratingFilter" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">All Ratings</option>
+                    <option value="4">★★★★★ 4+</option>
+                    <option value="3">★★★☆☆ 3+</option>
+                    <option value="2">★★☆☆☆ 2+</option>
+                    <option value="1">★☆☆☆☆ 1+</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chai Grid -->
+    <div id="chaiContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for chai in chais %}
+            {% include "chai/chai_card.html" %}
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-12 flex justify-center items-center gap-2">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">Previous</a>
+        {% endif %}
+        
+        <span class="px-4 py-2">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">Last</a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchBox = document.getElementById('searchBox');
+    const typeFilter = document.getElementById('chaiTypeFilter');
+    const priceFilter = document.getElementById('priceFilter');
+    const ratingFilter = document.getElementById('ratingFilter');
+
+    function updateFilters() {
+        const params = new URLSearchParams();
+        if (searchBox.value) params.append('q', searchBox.value);
+        if (typeFilter.value) params.append('chai_type', typeFilter.value);
+        if (priceFilter.value) params.append('price_range', priceFilter.value);
+        if (ratingFilter.value) params.append('min_rating', ratingFilter.value);
+        
+        window.location.href = '?' + params.toString();
+    }
+
+    searchBox.addEventListener('change', updateFilters);
+    typeFilter.addEventListener('change', updateFilters);
+    priceFilter.addEventListener('change', updateFilters);
+    ratingFilter.addEventListener('change', updateFilters);
+});
+</script>
+
+<style>
+    #chaiContainer {
+        animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+</style>
+{% endblock %}

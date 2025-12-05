@@ -1,0 +1,57 @@
+{% load static tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+{% block title %}
+Home page
+{% endblock %}
+
+  </title>
+    <link rel="stylesheet" href="{% static "style.css" %}">
+    <link rel="stylesheet" href="{% static "interactive.css" %}">
+    {% tailwind_css %}
+
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold">☕ Chai Aur Django</a>
+                <ul class="flex gap-6 items-center">
+                    <li><a href="/" class="hover:text-orange-100 transition-colors">Home</a></li>
+                    <li><a href="/chai/" class="hover:text-orange-100 transition-colors">Chai</a></li>
+                    <li><a href="/about/" class="hover:text-orange-100 transition-colors">About</a></li>
+                    <li><a href="/contact/" class="hover:text-orange-100 transition-colors">Contact</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="/chai/my-favorites/" class="hover:text-orange-100 transition-colors">♥ Favorites</a></li>
+                        <li><a href="/chai/my-reviews/" class="hover:text-orange-100 transition-colors">My Reviews</a></li>
+                        <li><a href="/admin/" class="bg-white text-orange-500 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Admin</a></li>
+                        <li><a href="/admin/logout/" class="hover:text-orange-100 transition-colors">Logout</a></li>
+                    {% else %}
+                        <li><a href="/admin/login/" class="bg-white text-orange-500 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Chai Aur Django. All rights reserved.</p>
+            <p class="mt-2 text-gray-400">Made with ☕ and Django</p>
+        </div>
+    </footer>
+
+</body>
+</html>

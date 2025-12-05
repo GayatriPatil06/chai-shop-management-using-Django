@@ -1,0 +1,261 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{{ chai.name }} - Details
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Back Button -->
+    <a href="{% url 'all_chai' %}" class="text-orange-500 hover:text-orange-600 font-semibold mb-6 inline-block">← Back to All Chai</a>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <!-- Image Section -->
+        <div class="flex flex-col">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-4">
+                <img src="{{ chai.image.url }}" alt="{{ chai.name }}" class="w-full h-96 object-cover">
+            </div>
+            {% if user.is_authenticated %}
+                <button id="addFavBtn" class="w-full bg-red-500 text-white py-3 rounded-lg font-bold hover:bg-red-600 transition-colors duration-200" data-chai-id="{{ chai.id }}">
+                    ♥ Add to Favorites
+                </button>
+            {% endif %}
+        </div>
+
+        <!-- Details Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="mb-2 inline-block bg-orange-500 text-white px-4 py-2 rounded-full font-semibold">
+                {{ chai.get_chai_type_display }}
+            </div>
+            
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">{{ chai.name }}</h1>
+            
+            <!-- Rating Display -->
+            <div class="flex items-center gap-4 mb-6 pb-6 border-b">
+                <div class="flex items-center gap-2">
+                    <span class="text-4xl text-yellow-400">★</span>
+                    <div>
+                        <div class="text-3xl font-bold text-gray-800">{{ avg_rating }}/5</div>
+                        <div class="text-gray-600">{{ review_count }} reviews</div>
+                    </div>
+                </div>
+                <div class="text-2xl text-red-500">{{ favorite_count }} ♥</div>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-6">
+                <span class="text-sm text-gray-600">Price</span>
+                <div class="text-4xl font-bold text-orange-600">₹{{ chai.price }}</div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Description</h3>
+                <p class="text-gray-600 leading-relaxed">{{ chai.description }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews & Comments Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Add Review Form (Left) -->
+        <div class="lg:col-span-1">
+            {% if user.is_authenticated %}
+                <div class="bg-white rounded-lg shadow-lg p-6 sticky top-20">
+                    <h3 class="text-xl font-bold mb-4">Leave a Review</h3>
+                    <form id="reviewForm" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Rating</label>
+                            <div class="flex gap-2" id="starRating">
+                                {% for i in "12345" %}
+                                    <button type="button" class="star text-4xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="{{ i }}">★</button>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" id="ratingInput" name="rating" value="0">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Your Review</label>
+                            <textarea id="reviewText" name="review_text" rows="4" placeholder="Share your thoughts..." 
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors duration-200">
+                            Submit Review
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <p class="text-blue-800">
+                        <a href="/admin/login/" class="font-bold text-blue-600 hover:underline">Log in</a> to leave a review
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Reviews List (Right) -->
+        <div class="lg:col-span-2">
+            <h3 class="text-2xl font-bold mb-6">Reviews ({{ review_count }})</h3>
+            
+            {% if reviews %}
+                <div id="reviewsList" class="space-y-4">
+                    {% for review in reviews %}
+                        <div class="bg-white rounded-lg shadow p-4 review-item" data-review-id="{{ review.id }}">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="font-bold text-gray-800">{{ review.user.username }}</p>
+                                    <p class="text-sm text-gray-600">{{ review.date_added|date:"M d, Y" }}</p>
+                                </div>
+                                <div class="flex gap-1">
+                                    {% for i in "12345" %}
+                                        <span class="text-lg {% if i|stringformat:"d" <= review.rating|stringformat:"d" %}text-yellow-400{% else %}text-gray-300{% endif %}">★</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <p class="text-gray-700 mb-3">{{ review.review_text }}</p>
+                            
+                            <button class="text-sm text-blue-500 hover:text-blue-700 font-semibold toggle-comments" data-review-id="{{ review.id }}">
+                                {{ review.comment_count }} Comments ↓
+                            </button>
+                            
+                            <!-- Comments Section (Hidden by default) -->
+                            <div class="comments-section mt-3 hidden" id="comments-{{ review.id }}">
+                                <div class="bg-gray-50 rounded p-3 mb-3 space-y-2 max-h-48 overflow-y-auto comments-list">
+                                    <!-- Comments will be loaded here via AJAX -->
+                                </div>
+                                
+                                {% if user.is_authenticated %}
+                                    <form class="comment-form" data-review-id="{{ review.id }}">
+                                        {% csrf_token %}
+                                        <div class="flex gap-2">
+                                            <input type="text" placeholder="Add a comment..." class="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600">Post</button>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                    <p class="text-gray-600">No reviews yet. Be the first to review!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Star Rating
+let selectedRating = 0;
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+        selectedRating = this.dataset.rating;
+        document.getElementById('ratingInput').value = selectedRating;
+        updateStars();
+    });
+    
+    star.addEventListener('mouseover', function() {
+        const rating = this.dataset.rating;
+        document.querySelectorAll('.star').forEach((s, idx) => {
+            s.style.color = (idx + 1) <= rating ? '#fbbf24' : '#d1d5db';
+        });
+    });
+});
+
+document.getElementById('starRating').addEventListener('mouseleave', updateStars);
+
+function updateStars() {
+    document.querySelectorAll('.star').forEach((s, idx) => {
+        s.style.color = (idx + 1) <= selectedRating ? '#fbbf24' : '#d1d5db';
+    });
+}
+
+// Review Form Submission
+document.getElementById('reviewForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const rating = document.getElementById('ratingInput').value;
+    const reviewText = document.getElementById('reviewText').value;
+    
+    if (!rating) {
+        alert('Please select a rating');
+        return;
+    }
+    if (!reviewText.trim()) {
+        alert('Please write a review');
+        return;
+    }
+    
+    fetch('', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            rating: rating,
+            review_text: reviewText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Review submitted successfully!');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+// Toggle Comments
+document.querySelectorAll('.toggle-comments').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const reviewId = this.dataset.reviewId;
+        const section = document.getElementById(`comments-${reviewId}`);
+        section.classList.toggle('hidden');
+    });
+});
+
+// Favorite Button
+document.getElementById('addFavBtn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const chaiId = this.dataset.chaiId;
+    const btn = this;
+    
+    fetch(`/chai/${chaiId}/favorite/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message);
+            btn.classList.toggle('bg-red-500', data.favorited);
+            btn.classList.toggle('bg-gray-400', !data.favorited);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}
